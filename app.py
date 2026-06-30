@@ -1,15 +1,18 @@
-from flask import Flask, request
+from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Welcome to the Secure App!"
+
 @app.route('/hello')
 def hello():
-    # Captura el parámetro 'name' directamente desde la URL
     name = request.args.get('name', 'Guest')
-    
-    # VULNERABILIDAD CRÍTICA (XSS): Se concatena el input sin sanitizar en un string HTML
-    return f"<h1>Hello, {name}!</h1>"
+    # SOLUCIÓN DE SEGURIDAD: render_template_string sanitiza automáticamente
+    # el parámetro 'name' mediante el motor Jinja2, neutralizando ataques XSS.
+    template = '<h1>Hello, {{ name }}!</h1>'
+    return render_template_string(template, name=name)
 
 if __name__ == '__main__':
-    # La aplicación corre en modo debug activo (No recomendado para producción)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
